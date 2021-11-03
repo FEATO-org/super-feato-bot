@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  bot:
+    build:
+      context: ./bot
+      args:
+        GO_VERSION: "1.17"
+    container_name: bot
+    working_dir: /opt/app/bot
+    env_file: .env
+    volumes:
+      - ./bot:/opt/app/bot
+      - vendor-volume:/opt/app/bot/vendor
+  clasp:
+    build:
+      context: ./clasp
+      args:
+        NODE_VERSION: "16.13"
+    container_name: clasp
+    working_dir: /opt/app/clasp
+    env_file: .env
+    volumes:
+      - ./clasp:/opt/app/clasp
+      - node_module-volume:/opt/app/clasp/node_modules
+  db:
+    build: postgres
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+    tty: true
+
+volumes:
+  postgresql-data:
+  node_module-volume:
+  vendor-volume:
