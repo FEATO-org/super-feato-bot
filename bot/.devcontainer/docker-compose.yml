@@ -26,6 +26,7 @@ services:
       # Update this to wherever you want VS Code to mount the folder of your project
       - vscode-server-volume:/root/.vscode-server/extensions
       - .:/opt/app
+      - golang-data:/go
 
       # Uncomment the next line to use Docker from inside the container. See https://aka.ms/vscode-remote/samples/docker-from-docker-compose for details.
       # - /var/run/docker.sock:/var/run/docker.sock
@@ -40,3 +41,4 @@ services:
     command: /bin/sh -c "while sleep 1000; do :; done"
 volumes:
   vscode-server-volume:
+  golang-data:
