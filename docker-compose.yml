@@ -10,7 +10,6 @@ services:
     env_file: .env
     volumes:
       - ./bot:/opt/app/bot
-      - vendor-volume:/opt/app/bot/vendor
   clasp:
     build:
       context: ./clasp
@@ -21,7 +20,7 @@ services:
     env_file: .env
     volumes:
       - ./clasp:/opt/app/clasp
-      - node_module-volume:/opt/app/clasp/node_modules
+      - node_module-volume:/opt/app/clasp/node_modules/
   db:
     build: postgres
     ports:
@@ -30,10 +29,9 @@ services:
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=password
     volumes:
-      - postgresql-data:/var/lib/postgresql/data
+      - postgresql-data:/var/lib/postgresql/data/
     tty: true
 
 volumes:
   postgresql-data:
   node_module-volume:
-  vendor-volume:
