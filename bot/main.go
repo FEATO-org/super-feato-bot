@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/FEATO-org/feato-support-system/src/utility"
+	"github.com/FEATO-org/support-feato-system/src/utility"
 	"github.com/bwmarrin/discordgo"
 )
 

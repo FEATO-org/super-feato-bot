@@ -1,4 +1,4 @@
-module github.com/FEATO-org/feato-support-system
+module github.com/FEATO-org/support-feato-system
 
 go 1.17
 
