@@ -1,5 +1,6 @@
 module github.com/FEATO-org/support-feato-system
 
+// +heroku goVersion go1.17
 go 1.17
 
 require (
