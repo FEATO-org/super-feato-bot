@@ -1,6 +1,6 @@
 build: main.go
 	go mod vendor
-	go build -ldflags="-s -w" -trimpath -o bin/bot-server main.go
+	go build -ldflags="-s -w" -trimpath -o bin/bot-server src/main.go
 
 start:
 	./bin/bot-server
