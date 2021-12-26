@@ -1,3 +1,5 @@
 {
   "editor.formatOnSave": true,
+  "makefile.extensionOutputFolder": "./tmp",
+  "makefile.configurationCachePath": "tmp/configurationCache.log",
 }
