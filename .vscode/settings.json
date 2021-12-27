@@ -1,0 +1,4 @@
+{
+  "makefile.extensionOutputFolder": "./tmp",
+  "makefile.configurationCachePath": "tmp/configurationCache.log",
+}
