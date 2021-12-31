@@ -7,3 +7,5 @@ WORKDIR /opt/app/bot
 RUN apt upgrade
 
 COPY . .
+
+RUN npm ci

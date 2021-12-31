@@ -21,6 +21,7 @@ services:
     volumes:
       - ./clasp:/opt/app/clasp
       - node_module-volume:/opt/app/clasp/node_modules/
+      - clasprc-json:/root/.clasprc.json
   db:
     build: postgres
     ports:
@@ -33,5 +34,6 @@ services:
     tty: true
 
 volumes:
-  postgresql-data:
-  node_module-volume:
+  postgresql-data: null
+  node_module-volume: null
+  clasprc-json: null
