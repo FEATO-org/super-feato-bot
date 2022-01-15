@@ -3,8 +3,9 @@ services:
   bot:
     build:
       context: ./bot
+      target: production
       args:
-        GO_VERSION: "1.17"
+        GO_VERSION: "1.17.6"
     container_name: bot
     working_dir: /opt/app/bot
     env_file: .env
