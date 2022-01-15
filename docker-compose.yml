@@ -10,6 +10,8 @@ services:
     env_file: .env
     volumes:
       - ./bot:/opt/app/bot
+    depends_on:
+      - db
   clasp:
     build:
       context: ./clasp
@@ -22,7 +24,7 @@ services:
       - ./clasp:/opt/app/clasp
       - node_module-volume:/opt/app/clasp/node_modules/
   db:
-    build: postgres
+    image: postgres
     ports:
       - 5432:5432
     environment:
