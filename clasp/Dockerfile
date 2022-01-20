@@ -2,6 +2,7 @@ ARG NODE_VERSION
 
 # 開発環境のみしか発生し得ないコンテナ
 FROM node:${NODE_VERSION}
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
   git \
   && apt-get clean \

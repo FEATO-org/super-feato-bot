@@ -12,6 +12,7 @@ RUN make clean build
 
 # 開発用コンテナとしてairでhot reloadさせる
 FROM golang:${GO_VERSION} as develop
+# hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
   git \
   && apt-get clean \
