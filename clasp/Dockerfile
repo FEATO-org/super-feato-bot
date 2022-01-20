@@ -2,8 +2,10 @@ ARG NODE_VERSION
 
 # 開発環境のみしか発生し得ないコンテナ
 FROM node:${NODE_VERSION}
-RUN apt update && apt install -y \
-  git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  git \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt/app/bot
 
 COPY package.json package-lock.json ./
