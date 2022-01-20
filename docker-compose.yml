@@ -3,13 +3,16 @@ services:
   bot:
     build:
       context: ./bot
+      target: production
       args:
-        GO_VERSION: "1.17"
+        GO_VERSION: "1.17.6"
     container_name: bot
     working_dir: /opt/app/bot
     env_file: .env
     volumes:
       - ./bot:/opt/app/bot
+    depends_on:
+      - db
   clasp:
     build:
       context: ./clasp
@@ -21,9 +24,8 @@ services:
     volumes:
       - ./clasp:/opt/app/clasp
       - node_module-volume:/opt/app/clasp/node_modules/
-      - clasprc-json:/root/.clasprc.json
   db:
-    build: postgres
+    image: postgres
     ports:
       - 5432:5432
     environment:
@@ -36,4 +38,3 @@ services:
 volumes:
   postgresql-data: null
   node_module-volume: null
-  clasprc-json: null
