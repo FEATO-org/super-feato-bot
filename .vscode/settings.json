@@ -1,4 +1,10 @@
 {
   "makefile.extensionOutputFolder": "./tmp",
   "makefile.configurationCachePath": "tmp/configurationCache.log",
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  },
+  "[dockercompose]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  },
 }
