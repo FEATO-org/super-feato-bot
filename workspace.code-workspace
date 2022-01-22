@@ -13,5 +13,11 @@
 		"[json]": {
 			"editor.defaultFormatter": "vscode.json-language-features"
 		}
+	},
+	"extensions": {
+		"recommendations": [
+			"streetsidesoftware.code-spell-checker",
+			"editorconfig.editorconfig"
+		]
 	}
 }
