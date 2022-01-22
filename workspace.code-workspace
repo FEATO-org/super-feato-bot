@@ -10,5 +10,8 @@
 	"settings": {
 		"makefile.extensionOutputFolder": "tmp",
 		"makefile.configurationCachePath": "tmp/configurationCache.log",
+		"[json]": {
+			"editor.defaultFormatter": "vscode.json-language-features"
+		}
 	}
 }
