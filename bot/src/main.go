@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/FEATO-org/support-feato-system/src/omake"
 	"github.com/FEATO-org/support-feato-system/src/utility"
 	"github.com/bwmarrin/discordgo"
 )
@@ -71,6 +72,10 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if diceJudge(msg) {
 		diceRoll(msg, s, m)
+	}
+	if omake.JudgeRandomName(msg) {
+		omake.ResponseRandomName(msg, s, m)
+		return
 	}
 }
 
