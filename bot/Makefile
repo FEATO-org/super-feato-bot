@@ -1,14 +1,11 @@
 build: src/main.go
-	make clean
-	go mod vendor
-	go build -ldflags="-s -w" -trimpath -o bin/bot-server $<
+	go build -ldflags="-s -w" -trimpath -o bin/server $<
 
 start:
-	./bin/bot-server
+	./bin/server
 
 dev:
-	go install github.com/cosmtrek/air@latest
-	air
+	air -c .air.toml
 
 clean:
 	rm -rf bin tmp

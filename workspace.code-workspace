@@ -1,11 +1,23 @@
 {
-	"folders": [
-		{
-			"path": "bot"
-		},
-		{
-			"path": "clasp"
-		},
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "bot"
+    },
+    {
+      "path": "clasp"
+    },
+  ],
+  "settings": {
+    "makefile.extensionOutputFolder": "tmp",
+    "makefile.configurationCachePath": "tmp/configurationCache.log",
+    "[json]": {
+      "editor.defaultFormatter": "vscode.json-language-features"
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "streetsidesoftware.code-spell-checker",
+      "editorconfig.editorconfig"
+    ]
+  }
 }

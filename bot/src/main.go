@@ -2,21 +2,19 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"os/signal"
-	"strconv"
 	"strings"
 	"syscall"
-	"time"
 
+	"github.com/FEATO-org/support-feato-system/src/omake"
 	"github.com/FEATO-org/support-feato-system/src/utility"
 	"github.com/bwmarrin/discordgo"
 )
 
 func main() {
 
-	token := os.Getenv("discordToken")
+	token := os.Getenv("DISCORD_TOKEN")
 	// Create a new Discord session using the provided bot token.
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -69,8 +67,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	msg := beforeMessageNormalization(m.Content)
 
-	if diceJudge(msg) {
-		diceRoll(msg, s, m)
+	if omake.JudgeDice(msg) {
+		omake.ResponseDiceRoll(msg, s, m)
+	}
+	if omake.JudgeRandomName(msg) {
+		omake.ResponseRandomName(msg, s, m)
+		return
 	}
 }
 
@@ -94,56 +96,4 @@ func buildnewReplacerRules(text string) []string {
 		rules = append(rules, replace, text)
 	}
 	return rules
-}
-
-func diceJudge(message string) bool {
-	return strings.Contains(message, "!d")
-}
-
-func diceRoll(message string, session *discordgo.Session, event *discordgo.MessageCreate) {
-	array := strings.Split(message, " ")
-	if len(array) > 2 {
-		session.ChannelMessageSendReply(event.ChannelID, "Error!　コマンド指定が正しくありません", event.MessageReference)
-		return
-	}
-	array = strings.Split(array[1], "+")
-	rand.Seed(time.Now().UnixNano())
-	var calcArray []int64
-	for _, val := range array {
-		if strings.Contains(val, "d") {
-			roll := strings.Split(val, "d")
-			if len(roll) > 2 {
-				session.ChannelMessageSendReply(event.ChannelID, "Error!　dの数が多いです", event.MessageReference)
-				return
-			}
-			dice, err2 := strconv.Atoi(roll[1])
-			count, err1 := strconv.Atoi(roll[0])
-			if err1 != nil || err2 != nil {
-				session.ChannelMessageSendReply(event.ChannelID, "Error!　数字以外のものが指定されました", event.MessageReference)
-				return
-			}
-			for i := 0; i < count; i++ {
-				calcArray = append(calcArray, rand.Int63n(int64(dice))+1)
-			}
-			continue
-		}
-		sum, err := strconv.Atoi(val)
-		if err != nil {
-			session.ChannelMessageSendReply(event.ChannelID, "Error!　数字以外のものが指定されました", event.MessageReference)
-			return
-		}
-		calcArray = append(calcArray, int64(sum))
-	}
-	response := "( "
-	var total int64
-	for index, calc := range calcArray {
-		total = total + calc
-		response = response + strconv.Itoa(int(calc))
-		if (index + 1) != len(calcArray) {
-			response = response + " + "
-		} else {
-			response = response + " )"
-		}
-	}
-	session.ChannelMessageSendReply(event.ChannelID, strconv.Itoa(int(total))+" "+response, event.MessageReference)
 }

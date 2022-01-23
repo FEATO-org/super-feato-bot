@@ -1,0 +1,25 @@
+{
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "appsscript.json"
+      ],
+      "url": "http://json.schemastore.org/appsscript"
+    },
+    {
+      "fileMatch": [
+        ".clasp.json"
+      ],
+      "url": "http://json.schemastore.org/clasp"
+    }
+  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": true,
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true
+}
