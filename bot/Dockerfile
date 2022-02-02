@@ -21,7 +21,9 @@ WORKDIR /opt/app/bot
 RUN useradd -m golang
 COPY --chown=golang:golang --from=build /opt/app/bot ./
 USER golang
-RUN go install github.com/cosmtrek/air@v1.27.8
+RUN go install github.com/cosmtrek/air@v1.27.8 && \
+  go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.11.0
+
 CMD ["make", "dev"]
 
 # 本番用コンテナ（Herokuを想定）

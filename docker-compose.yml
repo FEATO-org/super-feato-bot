@@ -9,8 +9,16 @@ services:
     container_name: bot
     working_dir: /opt/app/bot
     env_file: .env
+    environment:
+      - PGPASSWORD=password
+      - PGUSER=postgres
+      - PGSSLMODE=disable
+      - PGHOST=postgres
+      - APP_ENV=develop
     volumes:
       - ./bot:/opt/app/bot
+    networks:
+      - sfs-network
     depends_on:
       - db
   clasp:
@@ -26,15 +34,21 @@ services:
       - node_module-volume:/opt/app/clasp/node_modules/
   db:
     image: postgres
+    container_name: postgres
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=root
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
     volumes:
       - postgresql-data:/var/lib/postgresql/data/
     tty: true
+    networks:
+      - sfs-network
 
 volumes:
   postgresql-data: null
   node_module-volume: null
+
+networks:
+  sfs-network:
