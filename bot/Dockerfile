@@ -14,14 +14,19 @@ RUN make clean build
 FROM golang:${GO_VERSION} as develop
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  git \
+  git postgresql-client \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /opt/app/bot
 RUN useradd -m golang
 COPY --chown=golang:golang --from=build /opt/app/bot ./
+RUN ./tools/setup-psqldef.sh
+
 USER golang
-RUN go install github.com/cosmtrek/air@v1.27.8
+RUN go install github.com/cosmtrek/air@v1.27.8 && \
+  go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.11.0
+
 CMD ["make", "dev"]
 
 # 本番用コンテナ（Herokuを想定）
