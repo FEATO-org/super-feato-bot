@@ -22,4 +22,7 @@ migrate: $(schema)
 migrate.dry:
 	psqldef -h $(PGHOST) $(APP_ENV) --dry-run < $(schema)
 
-.PHONY: start dev clean migrate.dry migrate
+setup:
+	./tools/build-db.sh
+
+.PHONY: start dev clean migrate.dry migrate setup
