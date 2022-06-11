@@ -2,4 +2,18 @@
   "editor.formatOnSave": true,
   "makefile.extensionOutputFolder": "./tmp",
   "makefile.configurationCachePath": "tmp/configurationCache.log",
+  "cSpell.words": [
+    "bwmarrin",
+    "dbname",
+    "dbtx",
+    "discordgo",
+    "feato",
+    "gimei",
+    "mattn",
+    "PGHOST",
+    "PGSSLMODE",
+    "PGUSER",
+    "sqlc",
+    "Usecase"
+  ],
 }
