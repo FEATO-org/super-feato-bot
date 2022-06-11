@@ -5,14 +5,15 @@
   "cSpell.words": [
     "bwmarrin",
     "dbname",
+    "dbtx",
     "discordgo",
     "feato",
     "gimei",
     "mattn",
-    "omake",
     "PGHOST",
     "PGSSLMODE",
     "PGUSER",
-    "sqlc"
+    "sqlc",
+    "Usecase"
   ],
 }
