@@ -1,7 +1,7 @@
 module github.com/FEATO-org/support-feato-system
 
 // +heroku goVersion go1.17
-go 1.17
+go 1.18
 
 require (
 	github.com/bwmarrin/discordgo v0.25.1-0.20220603125853-c8c153872c36
