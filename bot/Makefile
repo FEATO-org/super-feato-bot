@@ -1,6 +1,6 @@
 schema = db/schema.sql
 
-build: src/main.go
+build: cmd/server/main.go
 	go build -ldflags="-s -w" -trimpath -o bin/server $^
 
 start:
