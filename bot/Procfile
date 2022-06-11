@@ -1,1 +1,1 @@
-worker: bin/src
+worker: bin/server
