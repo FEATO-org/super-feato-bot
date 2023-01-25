@@ -1,7 +1,8 @@
 package interfaces
 
 import (
-	"log"
+	"fmt"
+	"runtime"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -13,11 +14,24 @@ type CommandInterface interface {
 
 // エラーをlogに流した上でDiscordに返答する
 func ServerErrorInteractionRespond(err error, s *discordgo.Session, i *discordgo.InteractionCreate) {
-	log.Println(err)
+	printStackTrace()
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: err.Error(),
 		},
 	})
+}
+
+func printStackTrace() {
+	i := 0
+	for {
+		_, file, line, ok := runtime.Caller(i)
+		if !ok {
+			// 取得できなくなったら終了
+			break
+		}
+		fmt.Printf("%s:%d, \n", file, line)
+		i += 1
+	}
 }

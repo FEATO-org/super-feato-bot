@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
@@ -8,17 +10,34 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/FEATO-org/support-feato-system/config"
 	"github.com/FEATO-org/support-feato-system/infrastructure"
 	"github.com/FEATO-org/support-feato-system/interfaces"
 	"github.com/FEATO-org/support-feato-system/usecase"
 	"github.com/bwmarrin/discordgo"
+	"golang.org/x/oauth2"
 )
 
-func main() {
-	discordToken := os.Getenv("DISCORD_TOKEN")
+var (
+	discordToken string
+	guildIDList  []string
+	ctx          context.Context
+	dbtx         *sql.DB
+	oauthConfig  *oauth2.Config
+)
+
+func init() {
+	discordToken = os.Getenv("DISCORD_TOKEN")
 	// 仮置き
-	guildIDs := strings.Split(os.Getenv("GUILD_IDS"), ",")
-	// ctx := context.Background()
+	guildIDList = strings.Split(os.Getenv("GUILD_IDS"), ",")
+
+	ctx = context.Background()
+	dbtx = config.NewDB()
+	oauthConfig = config.NewOauth2()
+	log.SetFlags(log.Llongfile)
+}
+
+func main() {
 
 	// dice
 	diceUsecase := usecase.NewDiceUsecase(infrastructure.NewDiceRepository())
@@ -26,8 +45,11 @@ func main() {
 	// character
 	characterUsecase := usecase.NewCharacterUsecase(infrastructure.NewCharacterRepository())
 	characterInterfaces := interfaces.NewCharacterInterfaces(characterUsecase)
+	// sfs
+	systemUsecase := usecase.NewSystemUsecase(infrastructure.NewGuildRepository(ctx, dbtx), infrastructure.NewSystemUserGuildRepository(ctx, dbtx), infrastructure.NewSystemUserRepository(ctx, dbtx), infrastructure.NewTokenRepository(ctx, dbtx, oauthConfig))
+	systemInterfaces := interfaces.NewSystemInterfaces(systemUsecase)
 
-	discordInterfaces := interfaces.NewDiscordInterfaces(diceInterface, characterInterfaces, guildIDs)
+	discordInterfaces := interfaces.NewDiscordInterfaces(diceInterface, characterInterfaces, systemInterfaces, guildIDList)
 
 	// discordへの接続と初期化処理
 	dg, err := discordgo.New("Bot " + discordToken)

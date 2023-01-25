@@ -10,4 +10,19 @@
   "[dockercompose]": {
     "editor.defaultFormatter": "ms-azuretools.vscode-docker"
   },
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "bwmarrin",
+    "dbname",
+    "dbtx",
+    "discordgo",
+    "feato",
+    "gimei",
+    "mattn",
+    "PGHOST",
+    "PGSSLMODE",
+    "PGUSER",
+    "sqlc",
+    "Usecase"
+  ]
 }

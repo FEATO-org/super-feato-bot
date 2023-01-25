@@ -2,7 +2,7 @@ ARG GO_VERSION
 
 # 共通のbuilder
 FROM golang:${GO_VERSION} as build
-WORKDIR /opt/app/bot
+WORKDIR /opt/app
 COPY go.mod go.sum ./
 RUN go mod tidy && \
   go mod vendor
@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /opt/app/bot
 RUN useradd -m golang
-COPY --chown=golang:golang --from=build /opt/app/bot ./
+COPY --chown=golang:golang --from=build /opt/app ./
 RUN ./tools/setup-psqldef.sh
 
 USER golang
@@ -38,6 +38,6 @@ FROM gcr.io/distroless/static-debian11 as production
 ENV DISCORD_TOKEN=""
 ENV GUILD_IDS=""
 
-COPY --chown=nonroot:nonroot --from=build /opt/app/bot/bin /opt/app
+COPY --chown=nonroot:nonroot --from=build /opt/app/bin /opt/app
 USER nonroot
-CMD [ "/opt/app/server" ]
+# CMD [ "/opt/app/server" ]
