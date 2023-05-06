@@ -3,11 +3,11 @@ module github.com/FEATO-org/support-feato-system
 go 1.18
 
 require (
-	github.com/bwmarrin/discordgo v0.25.1-0.20220603125853-c8c153872c36
-	github.com/lib/pq v1.10.6
-	github.com/mattn/go-gimei v0.0.1
-	golang.org/x/oauth2 v0.0.0-20220608161450-d0670ef3b1eb
-	golang.org/x/text v0.3.7
+	github.com/bwmarrin/discordgo v0.27.1
+	github.com/lib/pq v1.10.9
+	github.com/mattn/go-gimei v0.0.4
+	golang.org/x/oauth2 v0.7.0
+	golang.org/x/text v0.9.0
 	google.golang.org/api v0.83.0
 )
 
@@ -19,8 +19,8 @@ require (
 	github.com/gorilla/websocket v1.4.2 // indirect
 	go.opencensus.io v0.23.0 // indirect
 	golang.org/x/crypto v0.0.0-20210421170649-83a5a9bb288b // indirect
-	golang.org/x/net v0.0.0-20220607020251-c690dde0001d // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220602131408-e326c6e8e9c8 // indirect
 	google.golang.org/grpc v1.47.0 // indirect
