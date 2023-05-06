@@ -1,13 +1,11 @@
 version: "3.8"
 services:
-  bot:
+  app:
     build:
-      context: ./bot
-      target: production
       args:
-        GO_VERSION: "1.18.3"
-    container_name: bot
-    working_dir: /opt/app/bot
+        GO_VERSION: "1.20.4"
+    container_name: app
+    working_dir: /opt/app
     env_file: .env
     environment:
       - PGPASSWORD=password
@@ -16,22 +14,12 @@ services:
       - PGHOST=postgres
       - APP_ENV=develop
     volumes:
-      - ./bot:/opt/app/bot
+      - .:/opt/app
+      - golang-data:/go
     networks:
       - sfs-network
     depends_on:
       - db
-  clasp:
-    build:
-      context: ./clasp
-      args:
-        NODE_VERSION: "16.13"
-    container_name: clasp
-    working_dir: /opt/app/clasp
-    env_file: .env
-    volumes:
-      - ./clasp:/opt/app/clasp
-      - node_module-volume:/opt/app/clasp/node_modules/
   db:
     image: postgres
     container_name: postgres
@@ -42,14 +30,14 @@ services:
       - POSTGRES_PASSWORD=password
     volumes:
       - postgresql-data:/var/lib/postgresql/data/
-      - ./bot/db/init:/docker-entrypoint-initdb.d
+      - ./db/init:/docker-entrypoint-initdb.d
     tty: true
     networks:
       - sfs-network
 
 volumes:
   postgresql-data: null
-  node_module-volume: null
+  golang-data: null
 
 networks:
   sfs-network:
