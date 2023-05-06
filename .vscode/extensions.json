@@ -4,6 +4,8 @@
     "editorconfig.editorconfig",
     "ms-azuretools.vscode-docker",
     "exiasr.hadolint",
-    "ms-vscode-remote.vscode-remote-extensionpack"
+    "golang.go",
+    "ms-vscode-remote.vscode-remote-extensionpack",
+    "tamasfe.even-better-toml"
   ]
 }

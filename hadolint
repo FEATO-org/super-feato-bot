@@ -1,8 +1,0 @@
-#!/bin/bash
-set -euxo pipefail
-WORKDIR=$(pwd)
-cd "$(dirname "$0")"
-
-dockerfile="$1"
-shift
-docker run --rm -i hadolint/hadolint hadolint "$@" - < "$dockerfile"
