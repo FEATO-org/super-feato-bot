@@ -29,15 +29,14 @@ func (c *Character) Set(gender, firstName, firstNameHiragana,
 	return nil
 }
 
-// 日本人名用の組み立て
+func (c *Character) GetGender() string {
+	return c.gender
+}
+
 func (c *Character) GetName() string {
-	return c.lastName + " " + c.firstName
+	return c.firstName + c.lastName
 }
 
 func (c *Character) GetNameHiragana() string {
-	return c.lastNameHiragana + " " + c.firstNameHiragana
-}
-
-func (c *Character) GetGender() string {
-	return c.gender
+	return c.firstNameHiragana + c.lastNameHiragana
 }

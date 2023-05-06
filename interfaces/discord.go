@@ -16,16 +16,14 @@ type DiscordInterfaces interface {
 type discordInterfaces struct {
 	diceInterfaces      DiceInterfaces
 	characterInterfaces CharacterInterfaces
-	systemInterfaces    SystemInterfaces
 	guildIDs            []string
 	commands            map[string][]*discordgo.ApplicationCommand
 }
 
-func NewDiscordInterfaces(diceInterfaces DiceInterfaces, characterInterfaces CharacterInterfaces, systemInterfaces SystemInterfaces, guildIDs []string) DiscordInterfaces {
+func NewDiscordInterfaces(diceInterfaces DiceInterfaces, characterInterfaces CharacterInterfaces, guildIDs []string) DiscordInterfaces {
 	return &discordInterfaces{
 		diceInterfaces:      diceInterfaces,
 		characterInterfaces: characterInterfaces,
-		systemInterfaces:    systemInterfaces,
 		guildIDs:            guildIDs,
 		commands:            map[string][]*discordgo.ApplicationCommand{},
 	}
@@ -54,7 +52,6 @@ func (di *discordInterfaces) AddMessageHandler(s *discordgo.Session) {
 func (di *discordInterfaces) CreateApplicationCommand(s *discordgo.Session) {
 	commands := di.diceInterfaces.BuildCommands()
 	commands = append(commands, di.characterInterfaces.BuildCommands()...)
-	commands = append(commands, di.systemInterfaces.BuildCommands()...)
 	for _, guildID := range di.guildIDs {
 		registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 		for i, v := range commands {
@@ -71,7 +68,6 @@ func (di *discordInterfaces) CreateApplicationCommand(s *discordgo.Session) {
 
 func (di *discordInterfaces) AddCommandHandler(s *discordgo.Session) {
 	commandHandlers := margeCommandHandlerMap(di.diceInterfaces.BuildHandlers(), di.characterInterfaces.BuildHandlers())
-	commandHandlers = margeCommandHandlerMap(commandHandlers, di.systemInterfaces.BuildHandlers())
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)

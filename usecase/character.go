@@ -19,7 +19,7 @@ func (cu *characterUsecase) Generate(gender string) (*model.Character, error) {
 	if err != nil {
 		return nil, err
 	}
-	return cu.characterRepository.Generate(character)
+	return cu.characterRepository.Create(character)
 }
 
 func NewCharacterUsecase(characterRepository repository.CharacterRepository) CharacterUsecase {

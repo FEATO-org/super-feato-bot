@@ -23,10 +23,10 @@ func (d *Dice) Set(query, formula string, total int) error {
 	return nil
 }
 
-func (d *Dice) GetResult() string {
-	return d.query + "：" + strconv.Itoa(d.total) + " ( " + d.formula + " )"
-}
-
 func (d *Dice) GetQuery() string {
 	return d.query
+}
+
+func (d *Dice) GetResult() string {
+	return strconv.Itoa(d.total) + " (" + d.query + ")"
 }

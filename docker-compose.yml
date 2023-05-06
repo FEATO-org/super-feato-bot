@@ -2,7 +2,6 @@ version: "3.8"
 services:
   app:
     build:
-      target: production
       args:
         GO_VERSION: "1.19.5"
     container_name: app

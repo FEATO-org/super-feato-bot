@@ -15,7 +15,7 @@ func NewCharacterRepository() repository.CharacterRepository {
 	return &CharacterRepository{}
 }
 
-func (cgr *CharacterRepository) Generate(character *model.Character) (*model.Character, error) {
+func (cr *CharacterRepository) Create(character *model.Character) (*model.Character, error) {
 	var name *gimei.Name
 	if character.GetGender() == "" {
 		name = gimei.NewName()

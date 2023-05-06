@@ -38,18 +38,14 @@ func init() {
 }
 
 func main() {
-
 	// dice
 	diceUsecase := usecase.NewDiceUsecase(infrastructure.NewDiceRepository())
 	diceInterface := interfaces.NewDiceInterfaces(diceUsecase)
 	// character
 	characterUsecase := usecase.NewCharacterUsecase(infrastructure.NewCharacterRepository())
 	characterInterfaces := interfaces.NewCharacterInterfaces(characterUsecase)
-	// sfs
-	systemUsecase := usecase.NewSystemUsecase(infrastructure.NewGuildRepository(ctx, dbtx), infrastructure.NewSystemUserGuildRepository(ctx, dbtx), infrastructure.NewSystemUserRepository(ctx, dbtx), infrastructure.NewTokenRepository(ctx, dbtx, oauthConfig))
-	systemInterfaces := interfaces.NewSystemInterfaces(systemUsecase)
 
-	discordInterfaces := interfaces.NewDiscordInterfaces(diceInterface, characterInterfaces, systemInterfaces, guildIDList)
+	discordInterfaces := interfaces.NewDiscordInterfaces(diceInterface, characterInterfaces, guildIDList)
 
 	// discordへの接続と初期化処理
 	dg, err := discordgo.New("Bot " + discordToken)
