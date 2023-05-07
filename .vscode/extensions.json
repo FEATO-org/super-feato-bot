@@ -6,6 +6,8 @@
     "exiasr.hadolint",
     "golang.go",
     "ms-vscode-remote.vscode-remote-extensionpack",
-    "tamasfe.even-better-toml"
+    "tamasfe.even-better-toml",
+    "github.vscode-github-actions",
+    "redhat.vscode-yaml"
   ]
 }
