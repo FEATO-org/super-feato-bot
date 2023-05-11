@@ -31,7 +31,7 @@ CMD ["make", "dev"]
 
 # 本番用コンテナ
 # hadolint ignore=DL3006
-FROM gcr.io/distroless/static-debian11
+FROM gcr.io/distroless/base-debian11
 ENV DISCORD_TOKEN=""
 ENV GUILD_IDS=""
 
