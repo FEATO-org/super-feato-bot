@@ -1,7 +1,7 @@
 schema = db/schema.sql
 
 build: cmd/server/main.go
-	go build -ldflags="-s -w" -mod=readonly -trimpath -o bin/server $^
+	CGO_ENABLED=0 go build -ldflags="-s -w" -mod=readonly -trimpath -o bin/server $^
 
 start:
 	./bin/server
