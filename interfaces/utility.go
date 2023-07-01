@@ -7,11 +7,6 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-type CommandInterface interface {
-	BuildCommands() []*discordgo.ApplicationCommand
-	BuildHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
-}
-
 // エラーをlogに流した上でDiscordに返答する
 func ServerErrorInteractionRespond(err error, s *discordgo.Session, i *discordgo.InteractionCreate) {
 	printStackTrace()
@@ -34,4 +29,8 @@ func printStackTrace() {
 		fmt.Printf("%s:%d, \n", file, line)
 		i += 1
 	}
+}
+
+func interfaceToString(source interface{}) string {
+	return fmt.Sprintf("%v", source)
 }
