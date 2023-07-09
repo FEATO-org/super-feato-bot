@@ -53,11 +53,14 @@ func (di *discordInterfaces) AddMessageHandler(s *discordgo.Session) {
 
 func (di *discordInterfaces) AddGuildLeaveHandler(s *discordgo.Session) {
 	s.AddHandler(func(ss *discordgo.Session, event *discordgo.GuildMemberRemove) {
-		ss.ChannelMessageSendEmbed(di.discordConfig.NotifyChannelID, &discordgo.MessageEmbed{
+		_, err := ss.ChannelMessageSendEmbed(di.discordConfig.NotifyChannelID, &discordgo.MessageEmbed{
 			Title:     event.User.Username + "がサーバーを去りました👋",
 			Timestamp: interfaceToString(time.Now().Unix()),
 			Color:     0xff00000,
 		})
+		if err != nil {
+			log.Fatalln(err)
+		}
 	})
 }
 
