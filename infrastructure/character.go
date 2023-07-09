@@ -26,7 +26,7 @@ func (cr *CharacterRepository) Create(character *model.Character) (*model.Charac
 	} else {
 		return nil, errors.New("性別に想定外の文字列が設定されています。male・femaleか、何も指定しないでください")
 	}
-	character, err := model.NewCharacter(name.Sex.String(), name.First.Kanji(), name.First.Hiragana(), name.Last.Kanji(), name.Last.Hiragana())
+	character, err := model.NewCharacter(name.Sex.String(), name.Last.Kanji(), name.Last.Hiragana(), name.First.Kanji(), name.First.Hiragana())
 	if err != nil {
 		return nil, err
 	}

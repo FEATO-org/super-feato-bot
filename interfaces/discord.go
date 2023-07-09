@@ -2,30 +2,33 @@ package interfaces
 
 import (
 	"log"
+	"time"
 
+	"github.com/FEATO-org/support-feato-system/config"
 	"github.com/bwmarrin/discordgo"
 )
 
 type DiscordInterfaces interface {
 	CreateApplicationCommand(s *discordgo.Session)
 	AddCommandHandler(s *discordgo.Session)
+	AddGuildLeaveHandler(s *discordgo.Session)
 	AddMessageHandler(s *discordgo.Session)
 	DeleteApplicationCommand(s *discordgo.Session)
 }
 
 type discordInterfaces struct {
-	diceInterfaces      DiceInterfaces
-	characterInterfaces CharacterInterfaces
-	guildIDs            []string
-	commands            map[string][]*discordgo.ApplicationCommand
+	discordCommandInterfaces DiscordCommandInterfaces
+	guildIDs                 []string
+	commands                 map[string][]*discordgo.ApplicationCommand
+	discordConfig            config.DiscordConfig
 }
 
-func NewDiscordInterfaces(diceInterfaces DiceInterfaces, characterInterfaces CharacterInterfaces, guildIDs []string) DiscordInterfaces {
+func NewDiscordInterfaces(discordCommandInterfaces DiscordCommandInterfaces, guildIDs []string, discordConfig config.DiscordConfig) DiscordInterfaces {
 	return &discordInterfaces{
-		diceInterfaces:      diceInterfaces,
-		characterInterfaces: characterInterfaces,
-		guildIDs:            guildIDs,
-		commands:            map[string][]*discordgo.ApplicationCommand{},
+		discordCommandInterfaces: discordCommandInterfaces,
+		guildIDs:                 guildIDs,
+		commands:                 map[string][]*discordgo.ApplicationCommand{},
+		discordConfig:            discordConfig,
 	}
 }
 
@@ -46,12 +49,23 @@ func (di *discordInterfaces) AddMessageHandler(s *discordgo.Session) {
 			return
 		}
 	})
+}
 
+func (di *discordInterfaces) AddGuildLeaveHandler(s *discordgo.Session) {
+	s.AddHandler(func(ss *discordgo.Session, event *discordgo.GuildMemberRemove) {
+		_, err := ss.ChannelMessageSendEmbed(di.discordConfig.NotifyChannelID, &discordgo.MessageEmbed{
+			Title:     event.User.Username + "がサーバーを去りました👋",
+			Timestamp: interfaceToString(time.Now().Unix()),
+			Color:     0xff00000,
+		})
+		if err != nil {
+			log.Fatalln(err)
+		}
+	})
 }
 
 func (di *discordInterfaces) CreateApplicationCommand(s *discordgo.Session) {
-	commands := di.diceInterfaces.BuildCommands()
-	commands = append(commands, di.characterInterfaces.BuildCommands()...)
+	commands := di.discordCommandInterfaces.BuildCommands()
 	for _, guildID := range di.guildIDs {
 		registeredCommands := make([]*discordgo.ApplicationCommand, len(commands))
 		for i, v := range commands {
@@ -67,7 +81,7 @@ func (di *discordInterfaces) CreateApplicationCommand(s *discordgo.Session) {
 }
 
 func (di *discordInterfaces) AddCommandHandler(s *discordgo.Session) {
-	commandHandlers := margeCommandHandlerMap(di.diceInterfaces.BuildHandlers(), di.characterInterfaces.BuildHandlers())
+	commandHandlers := di.discordCommandInterfaces.BuildHandlers()
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)

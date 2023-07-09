@@ -19,11 +19,13 @@ import (
 )
 
 var (
-	discordToken string
-	guildIDList  []string
-	ctx          context.Context
-	dbtx         *sql.DB
-	oauthConfig  *oauth2.Config
+	discordToken        string
+	guildIDList         []string
+	ctx                 context.Context
+	dbtx                *sql.DB
+	oauthConfig         *oauth2.Config
+	discordConfig       *config.DiscordConfig
+	p2pEarthquakeConfig *config.P2PEarthquake
 )
 
 func init() {
@@ -34,18 +36,20 @@ func init() {
 	ctx = context.Background()
 	dbtx = config.NewDB()
 	oauthConfig = config.NewOauth2()
+	discordConfig = config.NewDiscordConfig()
+	p2pEarthquakeConfig = config.NewP2PEarthquake()
 	log.SetFlags(log.Llongfile)
 }
 
 func main() {
-	// dice
-	diceUsecase := usecase.NewDiceUsecase(infrastructure.NewDiceRepository())
-	diceInterface := interfaces.NewDiceInterfaces(diceUsecase)
-	// character
-	characterUsecase := usecase.NewCharacterUsecase(infrastructure.NewCharacterRepository())
-	characterInterfaces := interfaces.NewCharacterInterfaces(characterUsecase)
+	_, cancel := context.WithCancel(ctx)
 
-	discordInterfaces := interfaces.NewDiscordInterfaces(diceInterface, characterInterfaces, guildIDList)
+	discordUserCommandUsecase := usecase.NewDiscordUserCommand(infrastructure.NewDiceRepository(), infrastructure.NewCharacterRepository())
+	discordCommandInterfaces := interfaces.NewDiscordCommandInterfaces(discordUserCommandUsecase)
+	systemWSIncomingUsecase := usecase.NewSystemWSIncoming(infrastructure.NewDiceRepository())
+	p2pEarthquakeInterfaces := interfaces.NewP2PEarthquakeInterfaces(systemWSIncomingUsecase, *p2pEarthquakeConfig, ctx, cancel, *discordConfig)
+
+	discordInterfaces := interfaces.NewDiscordInterfaces(discordCommandInterfaces, guildIDList, *discordConfig)
 
 	// discordへの接続と初期化処理
 	dg, err := discordgo.New("Bot " + discordToken)
@@ -67,6 +71,8 @@ func main() {
 	discordInterfaces.CreateApplicationCommand(dg)
 	discordInterfaces.AddCommandHandler(dg)
 	discordInterfaces.AddMessageHandler(dg)
+	discordInterfaces.AddGuildLeaveHandler(dg)
+	go p2pEarthquakeInterfaces.ReceiveEEWToDiscord(dg)
 
 	fmt.Println("Bot is now running.")
 
