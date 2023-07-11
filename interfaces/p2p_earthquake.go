@@ -30,7 +30,7 @@ type eew struct {
 	Code       int32  `json:"code"`
 	Time       string `json:"time"`
 	Test       bool   `json:"test"`
-	earthquake struct {
+	Earthquake struct {
 		OriginTime  string `json:"originTime"`
 		ArrivalTime string `json:"arrivalTime"`
 		Condition   string `json:"condition"`
@@ -81,6 +81,10 @@ func (pi *p2pEarthquakeInterfaces) ReceiveEEWToDiscord(s *discordgo.Session) err
 
 		// メッセージの処理
 		fmt.Println("Received message:", message)
+		// Areapeers Userquake UserquakeEvaluationを無視する
+		if message.Code == 555 || message.Code == 561 || message.Code == 9611 {
+			return nil
+		}
 		if message.Test {
 			pi.systemWSIncomingUsecase.ReceiveEEW(message, true)
 			return nil
@@ -91,8 +95,12 @@ func (pi *p2pEarthquakeInterfaces) ReceiveEEWToDiscord(s *discordgo.Session) err
 		if err != nil {
 			return err
 		}
+		title := "地震情報を受信しました（実験版）"
+		if message.Cancelled {
+			title = "地震情報取消報を受信しました（実験版）"
+		}
 		_, err = s.ChannelMessageSendEmbed(pi.discordConfig.NotifyChannelID, &discordgo.MessageEmbed{
-			Title:       "地震情報を受信しました",
+			Title:       title,
 			Description: interfaceToString(message),
 			Timestamp:   t.UTC().Format(time.RFC3339),
 			Color:       0xffff00,
