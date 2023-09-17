@@ -5,59 +5,37 @@ package sqlc
 
 import (
 	"context"
-	"time"
+	"database/sql"
 )
 
-const createGuild = `-- name: CreateGuild :one
+const createGuild = `-- name: CreateGuild :execresult
 INSERT INTO guilds (name, discord_id)
 VALUES ($1, $2)
-RETURNING id, name, discord_id
 `
 
-type CreateGuildParams struct {
-	Name      string
-	DiscordID string
+func (q *Queries) CreateGuild(ctx context.Context) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createGuild)
 }
 
-func (q *Queries) CreateGuild(ctx context.Context, arg CreateGuildParams) (Guild, error) {
-	row := q.db.QueryRowContext(ctx, createGuild, arg.Name, arg.DiscordID)
-	var i Guild
-	err := row.Scan(&i.ID, &i.Name, &i.DiscordID)
-	return i, err
-}
-
-const createSystemUser = `-- name: CreateSystemUser :one
+const createSystemUser = `-- name: CreateSystemUser :execresult
 INSERT INTO system_users (discord_id)
 VALUES ($1)
-RETURNING id, discord_id
 `
 
-func (q *Queries) CreateSystemUser(ctx context.Context, discordID string) (SystemUser, error) {
-	row := q.db.QueryRowContext(ctx, createSystemUser, discordID)
-	var i SystemUser
-	err := row.Scan(&i.ID, &i.DiscordID)
-	return i, err
+func (q *Queries) CreateSystemUser(ctx context.Context) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createSystemUser)
 }
 
-const createSystemUserGuild = `-- name: CreateSystemUserGuild :one
+const createSystemUserGuild = `-- name: CreateSystemUserGuild :execresult
 INSERT INTO system_user_guild (system_user_id, guild_id)
 VALUES ($1, $2)
-RETURNING system_user_id, guild_id
 `
 
-type CreateSystemUserGuildParams struct {
-	SystemUserID int64
-	GuildID      int64
+func (q *Queries) CreateSystemUserGuild(ctx context.Context) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createSystemUserGuild)
 }
 
-func (q *Queries) CreateSystemUserGuild(ctx context.Context, arg CreateSystemUserGuildParams) (SystemUserGuild, error) {
-	row := q.db.QueryRowContext(ctx, createSystemUserGuild, arg.SystemUserID, arg.GuildID)
-	var i SystemUserGuild
-	err := row.Scan(&i.SystemUserID, &i.GuildID)
-	return i, err
-}
-
-const createToken = `-- name: CreateToken :one
+const createToken = `-- name: CreateToken :execresult
 INSERT INTO tokens (
     system_user_id,
     access_token,
@@ -66,35 +44,10 @@ INSERT INTO tokens (
     expiry
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id, system_user_id, access_token, token_type, refresh_token, expiry
 `
 
-type CreateTokenParams struct {
-	SystemUserID int64
-	AccessToken  string
-	TokenType    string
-	RefreshToken string
-	Expiry       time.Time
-}
-
-func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (Token, error) {
-	row := q.db.QueryRowContext(ctx, createToken,
-		arg.SystemUserID,
-		arg.AccessToken,
-		arg.TokenType,
-		arg.RefreshToken,
-		arg.Expiry,
-	)
-	var i Token
-	err := row.Scan(
-		&i.ID,
-		&i.SystemUserID,
-		&i.AccessToken,
-		&i.TokenType,
-		&i.RefreshToken,
-		&i.Expiry,
-	)
-	return i, err
+func (q *Queries) CreateToken(ctx context.Context) (sql.Result, error) {
+	return q.db.ExecContext(ctx, createToken)
 }
 
 const deleteGuild = `-- name: DeleteGuild :exec
@@ -102,8 +55,8 @@ DELETE FROM guilds
 WHERE id = $1
 `
 
-func (q *Queries) DeleteGuild(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteGuild, id)
+func (q *Queries) DeleteGuild(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteGuild)
 	return err
 }
 
@@ -112,8 +65,8 @@ DELETE FROM system_users
 WHERE id = $1
 `
 
-func (q *Queries) DeleteSystemUser(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteSystemUser, id)
+func (q *Queries) DeleteSystemUser(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteSystemUser)
 	return err
 }
 
@@ -123,13 +76,8 @@ WHERE system_user_id = $1
   AND guild_id = $2
 `
 
-type DeleteSystemUserGuildParams struct {
-	SystemUserID int64
-	GuildID      int64
-}
-
-func (q *Queries) DeleteSystemUserGuild(ctx context.Context, arg DeleteSystemUserGuildParams) error {
-	_, err := q.db.ExecContext(ctx, deleteSystemUserGuild, arg.SystemUserID, arg.GuildID)
+func (q *Queries) DeleteSystemUserGuild(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteSystemUserGuild)
 	return err
 }
 
@@ -138,47 +86,59 @@ DELETE FROM tokens
 WHERE id = $1
 `
 
-func (q *Queries) DeleteToken(ctx context.Context, id int64) error {
-	_, err := q.db.ExecContext(ctx, deleteToken, id)
+func (q *Queries) DeleteToken(ctx context.Context) error {
+	_, err := q.db.ExecContext(ctx, deleteToken)
 	return err
 }
 
 const findByDiscordIDGuild = `-- name: FindByDiscordIDGuild :one
-SELECT id, name, discord_id
+SELECT id, name, discord_id, sheet_id, created_at, updated_at
 FROM guilds
 WHERE discord_id = $1
 LIMIT 1
 `
 
-func (q *Queries) FindByDiscordIDGuild(ctx context.Context, discordID string) (Guild, error) {
-	row := q.db.QueryRowContext(ctx, findByDiscordIDGuild, discordID)
+func (q *Queries) FindByDiscordIDGuild(ctx context.Context) (Guild, error) {
+	row := q.db.QueryRowContext(ctx, findByDiscordIDGuild)
 	var i Guild
-	err := row.Scan(&i.ID, &i.Name, &i.DiscordID)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.DiscordID,
+		&i.SheetID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
 const findByDiscordIDSystemUser = `-- name: FindByDiscordIDSystemUser :one
-SELECT id, discord_id
+SELECT id, discord_id, created_at, updated_at
 FROM system_users
 WHERE discord_id = $1
 LIMIT 1
 `
 
-func (q *Queries) FindByDiscordIDSystemUser(ctx context.Context, discordID string) (SystemUser, error) {
-	row := q.db.QueryRowContext(ctx, findByDiscordIDSystemUser, discordID)
+func (q *Queries) FindByDiscordIDSystemUser(ctx context.Context) (SystemUser, error) {
+	row := q.db.QueryRowContext(ctx, findByDiscordIDSystemUser)
 	var i SystemUser
-	err := row.Scan(&i.ID, &i.DiscordID)
+	err := row.Scan(
+		&i.ID,
+		&i.DiscordID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
 const findByGuildIDSystemUserGuild = `-- name: FindByGuildIDSystemUserGuild :many
-SELECT system_user_id, guild_id
+SELECT system_user_id, guild_id, created_at, updated_at
 FROM system_user_guild
 WHERE guild_id = $1
 `
 
-func (q *Queries) FindByGuildIDSystemUserGuild(ctx context.Context, guildID int64) ([]SystemUserGuild, error) {
-	rows, err := q.db.QueryContext(ctx, findByGuildIDSystemUserGuild, guildID)
+func (q *Queries) FindByGuildIDSystemUserGuild(ctx context.Context) ([]SystemUserGuild, error) {
+	rows, err := q.db.QueryContext(ctx, findByGuildIDSystemUserGuild)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +146,12 @@ func (q *Queries) FindByGuildIDSystemUserGuild(ctx context.Context, guildID int6
 	var items []SystemUserGuild
 	for rows.Next() {
 		var i SystemUserGuild
-		if err := rows.Scan(&i.SystemUserID, &i.GuildID); err != nil {
+		if err := rows.Scan(
+			&i.SystemUserID,
+			&i.GuildID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -201,61 +166,73 @@ func (q *Queries) FindByGuildIDSystemUserGuild(ctx context.Context, guildID int6
 }
 
 const findByIDGuild = `-- name: FindByIDGuild :one
-SELECT id, name, discord_id
+SELECT id, name, discord_id, sheet_id, created_at, updated_at
 FROM guilds
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) FindByIDGuild(ctx context.Context, id int64) (Guild, error) {
-	row := q.db.QueryRowContext(ctx, findByIDGuild, id)
+func (q *Queries) FindByIDGuild(ctx context.Context) (Guild, error) {
+	row := q.db.QueryRowContext(ctx, findByIDGuild)
 	var i Guild
-	err := row.Scan(&i.ID, &i.Name, &i.DiscordID)
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.DiscordID,
+		&i.SheetID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
 const findByIDSystemUser = `-- name: FindByIDSystemUser :one
-SELECT id, discord_id
+SELECT id, discord_id, created_at, updated_at
 FROM system_users
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) FindByIDSystemUser(ctx context.Context, id int64) (SystemUser, error) {
-	row := q.db.QueryRowContext(ctx, findByIDSystemUser, id)
+func (q *Queries) FindByIDSystemUser(ctx context.Context) (SystemUser, error) {
+	row := q.db.QueryRowContext(ctx, findByIDSystemUser)
 	var i SystemUser
-	err := row.Scan(&i.ID, &i.DiscordID)
+	err := row.Scan(
+		&i.ID,
+		&i.DiscordID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
 const findByIDSystemUserGuild = `-- name: FindByIDSystemUserGuild :one
-SELECT system_user_id, guild_id
+SELECT system_user_id, guild_id, created_at, updated_at
 FROM system_user_guild
 WHERE guild_id = $1
   AND system_user_id = $2
 `
 
-type FindByIDSystemUserGuildParams struct {
-	GuildID      int64
-	SystemUserID int64
-}
-
-func (q *Queries) FindByIDSystemUserGuild(ctx context.Context, arg FindByIDSystemUserGuildParams) (SystemUserGuild, error) {
-	row := q.db.QueryRowContext(ctx, findByIDSystemUserGuild, arg.GuildID, arg.SystemUserID)
+func (q *Queries) FindByIDSystemUserGuild(ctx context.Context) (SystemUserGuild, error) {
+	row := q.db.QueryRowContext(ctx, findByIDSystemUserGuild)
 	var i SystemUserGuild
-	err := row.Scan(&i.SystemUserID, &i.GuildID)
+	err := row.Scan(
+		&i.SystemUserID,
+		&i.GuildID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
 const findByIDToken = `-- name: FindByIDToken :one
-SELECT id, system_user_id, access_token, token_type, refresh_token, expiry
+SELECT id, system_user_id, access_token, token_type, refresh_token, expiry, created_at, updated_at
 FROM tokens
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) FindByIDToken(ctx context.Context, id int64) (Token, error) {
-	row := q.db.QueryRowContext(ctx, findByIDToken, id)
+func (q *Queries) FindByIDToken(ctx context.Context) (Token, error) {
+	row := q.db.QueryRowContext(ctx, findByIDToken)
 	var i Token
 	err := row.Scan(
 		&i.ID,
@@ -264,18 +241,20 @@ func (q *Queries) FindByIDToken(ctx context.Context, id int64) (Token, error) {
 		&i.TokenType,
 		&i.RefreshToken,
 		&i.Expiry,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const findBySystemUserIDSystemUserGuild = `-- name: FindBySystemUserIDSystemUserGuild :many
-SELECT system_user_id, guild_id
+SELECT system_user_id, guild_id, created_at, updated_at
 FROM system_user_guild
 WHERE system_user_id = $1
 `
 
-func (q *Queries) FindBySystemUserIDSystemUserGuild(ctx context.Context, systemUserID int64) ([]SystemUserGuild, error) {
-	rows, err := q.db.QueryContext(ctx, findBySystemUserIDSystemUserGuild, systemUserID)
+func (q *Queries) FindBySystemUserIDSystemUserGuild(ctx context.Context) ([]SystemUserGuild, error) {
+	rows, err := q.db.QueryContext(ctx, findBySystemUserIDSystemUserGuild)
 	if err != nil {
 		return nil, err
 	}
@@ -283,7 +262,12 @@ func (q *Queries) FindBySystemUserIDSystemUserGuild(ctx context.Context, systemU
 	var items []SystemUserGuild
 	for rows.Next() {
 		var i SystemUserGuild
-		if err := rows.Scan(&i.SystemUserID, &i.GuildID); err != nil {
+		if err := rows.Scan(
+			&i.SystemUserID,
+			&i.GuildID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -298,14 +282,14 @@ func (q *Queries) FindBySystemUserIDSystemUserGuild(ctx context.Context, systemU
 }
 
 const findByUserIDToken = `-- name: FindByUserIDToken :one
-SELECT id, system_user_id, access_token, token_type, refresh_token, expiry
+SELECT id, system_user_id, access_token, token_type, refresh_token, expiry, created_at, updated_at
 FROM tokens
 WHERE system_user_id = $1
 LIMIT 1
 `
 
-func (q *Queries) FindByUserIDToken(ctx context.Context, systemUserID int64) (Token, error) {
-	row := q.db.QueryRowContext(ctx, findByUserIDToken, systemUserID)
+func (q *Queries) FindByUserIDToken(ctx context.Context) (Token, error) {
+	row := q.db.QueryRowContext(ctx, findByUserIDToken)
 	var i Token
 	err := row.Scan(
 		&i.ID,
@@ -314,6 +298,8 @@ func (q *Queries) FindByUserIDToken(ctx context.Context, systemUserID int64) (To
 		&i.TokenType,
 		&i.RefreshToken,
 		&i.Expiry,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }

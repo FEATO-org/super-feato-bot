@@ -16,13 +16,13 @@ schema.update: $(schema) db/query.sql
 	sqlc generate
 
 migrate: $(schema)
-	psqldef -h $(PGHOST) $(APP_ENV) < $<
+	mysqldef -h $(DBHOST) sfs -u ${DBUSER} -p ${DBPASSWORD} < $<
 	make schema.update
 
 migrate.dry:
-	psqldef -h $(PGHOST) $(APP_ENV) --dry-run < $(schema)
+	mysqldef -h $(DBHOST) sfs -u ${DBUSER} -p ${DBPASSWORD} --dry-run < $(schema)
 
 setup:
-	./tools/build-db.sh
+	./tools/setup-mysql.sh
 
 .PHONY: start dev clean migrate.dry migrate setup
