@@ -260,7 +260,7 @@ func (q *Queries) FindByIDSystemUserGuild(ctx context.Context, arg FindByIDSyste
 }
 
 const findByIDToken = `-- name: FindByIDToken :one
-SELECT id, system_user_id, access_token, token_type, refresh_token, expiry, created_at, updated_at
+SELECT id, system_user_id, guild_id, access_token, token_type, refresh_token, expiry, created_at, updated_at
 FROM tokens
 WHERE id = ?
 LIMIT 1
@@ -272,6 +272,7 @@ func (q *Queries) FindByIDToken(ctx context.Context, id int64) (Token, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.SystemUserID,
+		&i.GuildID,
 		&i.AccessToken,
 		&i.TokenType,
 		&i.RefreshToken,
@@ -317,7 +318,7 @@ func (q *Queries) FindBySystemUserIDSystemUserGuild(ctx context.Context, systemU
 }
 
 const findByUserIDToken = `-- name: FindByUserIDToken :one
-SELECT id, system_user_id, access_token, token_type, refresh_token, expiry, created_at, updated_at
+SELECT id, system_user_id, guild_id, access_token, token_type, refresh_token, expiry, created_at, updated_at
 FROM tokens
 WHERE system_user_id = ?
 LIMIT 1
@@ -329,6 +330,7 @@ func (q *Queries) FindByUserIDToken(ctx context.Context, systemUserID sql.NullIn
 	err := row.Scan(
 		&i.ID,
 		&i.SystemUserID,
+		&i.GuildID,
 		&i.AccessToken,
 		&i.TokenType,
 		&i.RefreshToken,

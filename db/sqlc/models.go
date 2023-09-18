@@ -33,6 +33,7 @@ type SystemUserGuild struct {
 type Token struct {
 	ID           int64
 	SystemUserID sql.NullInt64
+	GuildID      sql.NullInt64
 	AccessToken  sql.NullString
 	TokenType    string
 	RefreshToken string
