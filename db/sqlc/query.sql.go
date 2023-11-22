@@ -10,17 +10,18 @@ import (
 )
 
 const createGuild = `-- name: CreateGuild :execresult
-INSERT INTO guilds (name, discord_id)
-VALUES (?, ?)
+INSERT INTO guilds (name, discord_id, sheet_id)
+VALUES (?, ?, ?)
 `
 
 type CreateGuildParams struct {
 	Name      string
 	DiscordID string
+	SheetID   sql.NullString
 }
 
 func (q *Queries) CreateGuild(ctx context.Context, arg CreateGuildParams) (sql.Result, error) {
-	return q.db.ExecContext(ctx, createGuild, arg.Name, arg.DiscordID)
+	return q.db.ExecContext(ctx, createGuild, arg.Name, arg.DiscordID, arg.SheetID)
 }
 
 const createSystemUser = `-- name: CreateSystemUser :execresult
@@ -33,7 +34,7 @@ func (q *Queries) CreateSystemUser(ctx context.Context, discordID string) (sql.R
 }
 
 const createSystemUserGuild = `-- name: CreateSystemUserGuild :execresult
-INSERT INTO system_user_guild (system_user_id, guild_id)
+INSERT INTO system_user_guilds (system_user_id, guild_id)
 VALUES (?, ?)
 `
 
@@ -49,17 +50,19 @@ func (q *Queries) CreateSystemUserGuild(ctx context.Context, arg CreateSystemUse
 const createToken = `-- name: CreateToken :execresult
 INSERT INTO tokens (
     system_user_id,
+    guild_id,
     access_token,
     token_type,
     refresh_token,
     expiry
   )
-VALUES (?, ?, ?, ?, ?)
+VALUES (?, ?, ?, ?, ?, ?)
 `
 
 type CreateTokenParams struct {
 	SystemUserID sql.NullInt64
-	AccessToken  sql.NullString
+	GuildID      sql.NullInt64
+	AccessToken  string
 	TokenType    string
 	RefreshToken string
 	Expiry       time.Time
@@ -68,6 +71,7 @@ type CreateTokenParams struct {
 func (q *Queries) CreateToken(ctx context.Context, arg CreateTokenParams) (sql.Result, error) {
 	return q.db.ExecContext(ctx, createToken,
 		arg.SystemUserID,
+		arg.GuildID,
 		arg.AccessToken,
 		arg.TokenType,
 		arg.RefreshToken,
@@ -96,7 +100,7 @@ func (q *Queries) DeleteSystemUser(ctx context.Context, id int64) error {
 }
 
 const deleteSystemUserGuild = `-- name: DeleteSystemUserGuild :exec
-DELETE FROM system_user_guild
+DELETE FROM system_user_guilds
 WHERE system_user_id = ?
   AND guild_id = ?
 `
@@ -124,12 +128,12 @@ func (q *Queries) DeleteToken(ctx context.Context, id int64) error {
 const findByDiscordIDGuild = `-- name: FindByDiscordIDGuild :one
 SELECT id, name, discord_id, sheet_id, created_at, updated_at
 FROM guilds
-WHERE discord_id = $1
+WHERE discord_id = ?
 LIMIT 1
 `
 
-func (q *Queries) FindByDiscordIDGuild(ctx context.Context) (Guild, error) {
-	row := q.db.QueryRowContext(ctx, findByDiscordIDGuild)
+func (q *Queries) FindByDiscordIDGuild(ctx context.Context, discordID string) (Guild, error) {
+	row := q.db.QueryRowContext(ctx, findByDiscordIDGuild, discordID)
 	var i Guild
 	err := row.Scan(
 		&i.ID,
@@ -163,7 +167,7 @@ func (q *Queries) FindByDiscordIDSystemUser(ctx context.Context, discordID strin
 
 const findByGuildIDSystemUserGuild = `-- name: FindByGuildIDSystemUserGuild :many
 SELECT system_user_id, guild_id, created_at, updated_at
-FROM system_user_guild
+FROM system_user_guilds
 WHERE guild_id = ?
 `
 
@@ -237,7 +241,7 @@ func (q *Queries) FindByIDSystemUser(ctx context.Context, id int64) (SystemUser,
 
 const findByIDSystemUserGuild = `-- name: FindByIDSystemUserGuild :one
 SELECT system_user_id, guild_id, created_at, updated_at
-FROM system_user_guild
+FROM system_user_guilds
 WHERE guild_id = ?
   AND system_user_id = ?
 `
@@ -285,7 +289,7 @@ func (q *Queries) FindByIDToken(ctx context.Context, id int64) (Token, error) {
 
 const findBySystemUserIDSystemUserGuild = `-- name: FindBySystemUserIDSystemUserGuild :many
 SELECT system_user_id, guild_id, created_at, updated_at
-FROM system_user_guild
+FROM system_user_guilds
 WHERE system_user_id = ?
 `
 

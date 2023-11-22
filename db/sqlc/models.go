@@ -34,7 +34,7 @@ type Token struct {
 	ID           int64
 	SystemUserID sql.NullInt64
 	GuildID      sql.NullInt64
-	AccessToken  sql.NullString
+	AccessToken  string
 	TokenType    string
 	RefreshToken string
 	Expiry       time.Time
