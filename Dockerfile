@@ -36,6 +36,7 @@ ENV DISCORD_TOKEN=""
 ENV GUILD_IDS=""
 
 COPY --chown=nonroot:nonroot --from=build /opt/app/bin /opt/app
+COPY --chown=nonroot:nonroot ./credentials.json /opt/app
 
 USER nonroot
 CMD [ "/opt/app/server" ]
