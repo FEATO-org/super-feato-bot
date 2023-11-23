@@ -11,11 +11,17 @@ import (
 
 type DiscordCommandInterfaces interface {
 	BuildCommands() []*discordgo.ApplicationCommand
-	BuildHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
+	BuildCommandHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
+	BuildMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate)
 }
 
 type discordCommandInterfaces struct {
 	discordUserCommandUsecase usecase.DiscordUserCommandUsecase
+}
+
+// BuildMessageHandlers implements DiscordCommandInterfaces.
+func (di *discordCommandInterfaces) BuildMessageComponentHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	return map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){}
 }
 
 // BuildCommands implements DiscordCommandInterfaces.
@@ -57,11 +63,16 @@ func (di *discordCommandInterfaces) BuildCommands() []*discordgo.ApplicationComm
 				},
 			},
 		},
+		{
+			Type:        discordgo.ChatApplicationCommand,
+			Name:        "create-system-user",
+			Description: "管理者ユーザーを登録する",
+		},
 	}
 }
 
 // BuildHandlers implements DiscordCommandInterfaces.
-func (di *discordCommandInterfaces) BuildHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+func (di *discordCommandInterfaces) BuildCommandHandlers() map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	return map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"dice": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			var dice *model.Dice
@@ -82,13 +93,15 @@ func (di *discordCommandInterfaces) BuildHandlers() map[string]func(s *discordgo
 				return
 			}
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: dice.GetResult(),
 				},
-			},
-			)
+			})
+			if err != nil {
+				ServerErrorInteractionRespond(err, s, i)
+			}
 		},
 		"generate-character": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			var character *model.Character
@@ -116,12 +129,37 @@ func (di *discordCommandInterfaces) BuildHandlers() map[string]func(s *discordgo
 			messageBuilder.WriteString("\n性別：")
 			messageBuilder.WriteString(character.GetGender())
 
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
 				Data: &discordgo.InteractionResponseData{
 					Content: messageBuilder.String(),
 				},
 			})
+			if err != nil {
+				ServerErrorInteractionRespond(err, s, i)
+			}
+		},
+		"create-system-user": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+			guild, err := s.State.Guild(i.GuildID)
+			if err != nil {
+				ServerErrorInteractionRespond(err, s, i)
+				return
+			}
+			_, err = di.discordUserCommandUsecase.CreateSystemUser(getUserID(i), guild.ID, "", guild.Name)
+			if err != nil {
+				ServerErrorInteractionRespond(err, s, i)
+				return
+			}
+			err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "登録完了",
+					Flags:   discordgo.MessageFlagsEphemeral,
+				},
+			})
+			if err != nil {
+				ServerErrorInteractionRespond(err, s, i)
+			}
 		},
 	}
 }
@@ -130,4 +168,12 @@ func NewDiscordCommandInterfaces(discordUserCommandUsecase usecase.DiscordUserCo
 	return &discordCommandInterfaces{
 		discordUserCommandUsecase: discordUserCommandUsecase,
 	}
+}
+
+func getUserID(i *discordgo.InteractionCreate) string {
+	return i.Member.User.ID
+}
+
+func getGuildID(i *discordgo.InteractionCreate) string {
+	return i.GuildID
 }

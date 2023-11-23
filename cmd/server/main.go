@@ -44,7 +44,7 @@ func init() {
 func main() {
 	_, cancel := context.WithCancel(ctx)
 
-	discordUserCommandUsecase := usecase.NewDiscordUserCommand(infrastructure.NewDiceRepository(), infrastructure.NewCharacterRepository())
+	discordUserCommandUsecase := usecase.NewDiscordUserCommand(infrastructure.NewDiceRepository(), infrastructure.NewCharacterRepository(), infrastructure.NewSystemUserRepository(dbtx, ctx))
 	discordCommandInterfaces := interfaces.NewDiscordCommandInterfaces(discordUserCommandUsecase)
 	systemWSIncomingUsecase := usecase.NewSystemWSIncoming(infrastructure.NewDiceRepository())
 	p2pEarthquakeInterfaces := interfaces.NewP2PEarthquakeInterfaces(systemWSIncomingUsecase, *p2pEarthquakeConfig, ctx, cancel, *discordConfig)
@@ -72,6 +72,7 @@ func main() {
 	discordInterfaces.AddCommandHandler(dg)
 	discordInterfaces.AddMessageHandler(dg)
 	discordInterfaces.AddGuildLeaveHandler(dg)
+	discordInterfaces.AddComponentHandler(dg)
 	go p2pEarthquakeInterfaces.ReceiveEEWToDiscord(dg)
 
 	fmt.Println("Bot is now running.")
@@ -79,7 +80,7 @@ func main() {
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, syscall.SIGTERM)
 	<-sc
-	discordInterfaces.DeleteApplicationCommand(dg)
+	// discordInterfaces.DeleteApplicationCommands(dg)
 	dg.Close()
 	fmt.Println("Bot is shutdown.")
 }

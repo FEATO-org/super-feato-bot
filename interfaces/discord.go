@@ -11,9 +11,10 @@ import (
 type DiscordInterfaces interface {
 	CreateApplicationCommand(s *discordgo.Session)
 	AddCommandHandler(s *discordgo.Session)
+	AddComponentHandler(s *discordgo.Session)
 	AddGuildLeaveHandler(s *discordgo.Session)
 	AddMessageHandler(s *discordgo.Session)
-	DeleteApplicationCommand(s *discordgo.Session)
+	DeleteApplicationCommands(s *discordgo.Session)
 }
 
 type discordInterfaces struct {
@@ -21,6 +22,18 @@ type discordInterfaces struct {
 	guildIDs                 []string
 	commands                 map[string][]*discordgo.ApplicationCommand
 	discordConfig            config.DiscordConfig
+}
+
+// AddComponentHandler implements DiscordInterfaces.
+func (di *discordInterfaces) AddComponentHandler(s *discordgo.Session) {
+	componentHandlers := di.discordCommandInterfaces.BuildMessageComponentHandlers()
+	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		if i.Type == discordgo.InteractionMessageComponent {
+			if h, ok := componentHandlers[i.MessageComponentData().CustomID]; ok {
+				h(s, i)
+			}
+		}
+	})
 }
 
 func NewDiscordInterfaces(discordCommandInterfaces DiscordCommandInterfaces, guildIDs []string, discordConfig config.DiscordConfig) DiscordInterfaces {
@@ -81,22 +94,30 @@ func (di *discordInterfaces) CreateApplicationCommand(s *discordgo.Session) {
 }
 
 func (di *discordInterfaces) AddCommandHandler(s *discordgo.Session) {
-	commandHandlers := di.discordCommandInterfaces.BuildHandlers()
+	commandHandlers := di.discordCommandInterfaces.BuildCommandHandlers()
 	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+		if i.Type == discordgo.InteractionApplicationCommand {
+			if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+				h(s, i)
+			}
 		}
 	})
 }
 
-func (di *discordInterfaces) DeleteApplicationCommand(s *discordgo.Session) {
-	for k, v := range di.commands {
-		for _, v := range v {
-			err := s.ApplicationCommandDelete(s.State.User.ID, k, v.ID)
+func (di *discordInterfaces) DeleteApplicationCommands(s *discordgo.Session) {
+	guilds := s.State.Guilds
+	for _, guild := range guilds {
+		commands, err := s.ApplicationCommands(s.State.Application.ID, guild.ID)
+		if err != nil {
+			log.Panicf("Failed to get Application Commands: '%v' on '%v", err, guild.Name)
+		}
+		for _, command := range commands {
+			err = s.ApplicationCommandDelete(s.State.Application.ID, guild.ID, command.ID)
 			if err != nil {
-				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+				log.Panicf("Cannot delete '%v' on '%v' command: %v", command.Name, guild.Name, err)
 			}
 		}
+
 	}
 	log.Println("Completed application command delete.")
 }
