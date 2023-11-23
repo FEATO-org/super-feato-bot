@@ -9,7 +9,7 @@ import (
 
 // エラーをlogに流した上でDiscordに返答する
 func ServerErrorInteractionRespond(err error, s *discordgo.Session, i *discordgo.InteractionCreate) {
-	printStackTrace()
+	printStackTrace(err)
 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
@@ -18,8 +18,9 @@ func ServerErrorInteractionRespond(err error, s *discordgo.Session, i *discordgo
 	})
 }
 
-func printStackTrace() {
+func printStackTrace(err error) {
 	i := 0
+	println(err.Error())
 	for {
 		_, file, line, ok := runtime.Caller(i)
 		if !ok {
