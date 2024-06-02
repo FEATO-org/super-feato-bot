@@ -18,8 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
   git default-mysql-client \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && go install github.com/cosmtrek/air@v1.45.0 \
-  && go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.21.0
+  && go install github.com/cosmtrek/air@v1.51.0 \
+  && go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.26.0
 
 WORKDIR /opt/app
 COPY go.mod go.sum ./

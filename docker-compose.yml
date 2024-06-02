@@ -1,9 +1,8 @@
-version: "3.8"
 services:
   app:
     build:
       args:
-        GO_VERSION: "1.20.4"
+        GO_VERSION: "1.22.3"
     container_name: app
     working_dir: /opt/app
     env_file: .env
@@ -18,8 +17,6 @@ services:
     image: mariadb
     container_name: mariadb
     env_file: .env
-    ports:
-      - 3306:3306
     environment:
       - MARIADB_USER=${DBUSER}
       - MARIADB_PASSWORD=${DBPASSWORD}
