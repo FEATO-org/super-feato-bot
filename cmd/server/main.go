@@ -45,8 +45,11 @@ func main() {
 	_, cancel := context.WithCancel(ctx)
 
 	discordUserCommandUsecase := usecase.NewDiscordUserCommand(infrastructure.NewDiceRepository(), infrastructure.NewCharacterRepository(), infrastructure.NewSystemUserRepository(dbtx, ctx))
+
 	discordCommandInterfaces := interfaces.NewDiscordCommandInterfaces(discordUserCommandUsecase)
+
 	systemWSIncomingUsecase := usecase.NewSystemWSIncoming(infrastructure.NewDiceRepository())
+
 	p2pEarthquakeInterfaces := interfaces.NewP2PEarthquakeInterfaces(systemWSIncomingUsecase, *p2pEarthquakeConfig, ctx, cancel, *discordConfig)
 
 	discordInterfaces := interfaces.NewDiscordInterfaces(discordCommandInterfaces, guildIDList, *discordConfig)
