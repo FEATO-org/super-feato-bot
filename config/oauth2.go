@@ -15,7 +15,6 @@ func init() {
 }
 
 func NewOauth2() *oauth2.Config {
-	// FIXME: load env
 	credentials, err := os.ReadFile("./credentials.json")
 	if err != nil {
 		log.Printf("Unable to read client secret file: %v", err)

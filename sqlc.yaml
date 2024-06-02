@@ -1,7 +1,9 @@
-version: "1"
-packages:
-  - path: "db/sqlc"
-    name: "sqlc"
-    engine: "postgresql"
-    schema: "./db/schema.sql"
+version: "2"
+sql:
+  - schema: "./db/schema.sql"
+    engine: "mysql"
     queries: "./db/query.sql"
+    gen:
+      go:
+        out: "db/sqlc"
+        package: "sqlc"

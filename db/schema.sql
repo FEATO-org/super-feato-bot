@@ -1,0 +1,36 @@
+CREATE TABLE guilds (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  name TEXT NOT NULL,
+  discord_id TEXT NOT NULL,
+  sheet_id TEXT,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+);
+CREATE TABLE system_users (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  discord_id TEXT UNIQUE NOT NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6)
+);
+CREATE TABLE system_user_guilds (
+  system_user_id BIGINT NOT NULL,
+  guild_id BIGINT NOT NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  CONSTRAINT fk_system_user_guilds_to_system_users FOREIGN KEY(system_user_id) REFERENCES system_users(id),
+  CONSTRAINT fk_system_user_guilds_to_guilds FOREIGN KEY(guild_id) REFERENCES guilds(id),
+  PRIMARY KEY(system_user_id, guild_id)
+);
+CREATE TABLE tokens (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  system_user_id BIGINT,
+  guild_id BIGINT,
+  access_token TEXT NOT NULL,
+  token_type TEXT NOT NULL,
+  refresh_token TEXT NOT NULL,
+  expiry DATETIME(6) NOT NULL,
+  created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+  updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+  CONSTRAINT fk_token_to_system_user FOREIGN KEY (system_user_id) REFERENCES system_users(id),
+  CONSTRAINT fk_token_to_guilds FOREIGN KEY (guild_id) REFERENCES guilds(id)
+);

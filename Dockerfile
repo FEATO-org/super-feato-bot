@@ -15,17 +15,17 @@ ENV GUILD_IDS=""
 
 # hadolint ignore=DL3008
 RUN apt-get update && apt-get install -y --no-install-recommends \
-  git postgresql-client \
+  git default-mysql-client \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && go install github.com/cosmtrek/air@v1.27.8 \
-  && go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.11.0
+  && go install github.com/cosmtrek/air@v1.51.0 \
+  && go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.26.0
 
 WORKDIR /opt/app
 COPY go.mod go.sum ./
 RUN go mod vendor && go mod verify
 COPY . .
-RUN ./tools/setup-psqldef.sh
+RUN ./tools/setup-mysqldef.sh
 
 CMD ["make", "dev"]
 
@@ -36,6 +36,7 @@ ENV DISCORD_TOKEN=""
 ENV GUILD_IDS=""
 
 COPY --chown=nonroot:nonroot --from=build /opt/app/bin /opt/app
+COPY --chown=nonroot:nonroot ./credentials.json /opt/app
 
 USER nonroot
 CMD [ "/opt/app/server" ]

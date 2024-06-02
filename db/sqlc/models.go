@@ -3,6 +3,7 @@
 package sqlc
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -10,23 +11,33 @@ type Guild struct {
 	ID        int64
 	Name      string
 	DiscordID string
+	SheetID   sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type SystemUser struct {
 	ID        int64
 	DiscordID string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type SystemUserGuild struct {
 	SystemUserID int64
 	GuildID      int64
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type Token struct {
 	ID           int64
-	SystemUserID int64
+	SystemUserID sql.NullInt64
+	GuildID      sql.NullInt64
 	AccessToken  string
 	TokenType    string
 	RefreshToken string
 	Expiry       time.Time
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }

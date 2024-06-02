@@ -12,17 +12,19 @@ dev:
 clean:
 	rm -rf bin tmp
 
-schema.update: $(schema) db/query.sql
+schema.update:
+	make migrate model.build
+
+model.build: $(schema) db/query.sql
 	sqlc generate
 
 migrate: $(schema)
-	psqldef -h $(PGHOST) $(APP_ENV) < $<
-	make schema.update
+	mysqldef -h $(DBHOST) sfs -u ${DBUSER} -p ${DBPASSWORD} < $<
 
 migrate.dry:
-	psqldef -h $(PGHOST) $(APP_ENV) --dry-run < $(schema)
+	mysqldef -h $(DBHOST) sfs -u ${DBUSER} -p ${DBPASSWORD} --dry-run < $(schema)
 
-setup:
-	./tools/build-db.sh
+db.console:
+	mysql -h $(DBHOST) sfs -u ${DBUSER} -p${DBPASSWORD}
 
-.PHONY: start dev clean migrate.dry migrate setup
+.PHONY: start dev clean migrate.dry db.console
