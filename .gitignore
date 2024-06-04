@@ -4,4 +4,4 @@ tmp
 vendor
 tmp
 bin
-credentials.json
+secrets

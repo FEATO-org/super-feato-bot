@@ -15,7 +15,7 @@ func init() {
 }
 
 func NewOauth2() *oauth2.Config {
-	credentials, err := os.ReadFile("./credentials.json")
+	credentials, err := os.ReadFile("/run/secrets/google_secret")
 	if err != nil {
 		log.Printf("Unable to read client secret file: %v", err)
 	}
