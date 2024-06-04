@@ -13,6 +13,6 @@ else
   exit 1
 fi
 
-curl -OL https://github.com/k0kubun/sqldef/releases/download/v0.16.7/mysqldef_linux_${ARCH_TYPE}.tar.gz
+curl -OL https://github.com/k0kubun/sqldef/releases/download/v0.17.11/mysqldef_linux_${ARCH_TYPE}.tar.gz
 tar xf mysqldef_linux_${ARCH_TYPE}.tar.gz -C /usr/local/bin/
 rm mysqldef_linux_${ARCH_TYPE}.tar.gz

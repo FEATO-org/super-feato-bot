@@ -13,6 +13,6 @@ else
   exit 1
 fi
 
-curl -OL https://github.com/k0kubun/sqldef/releases/download/v0.16.7/psqldef_linux_${ARCH_TYPE}.tar.gz
+curl -OL https://github.com/k0kubun/sqldef/releases/download/v0.17.11/psqldef_linux_${ARCH_TYPE}.tar.gz
 tar xf psqldef_linux_${ARCH_TYPE}.tar.gz -C /usr/local/bin/
 rm psqldef_linux_${ARCH_TYPE}.tar.gz
